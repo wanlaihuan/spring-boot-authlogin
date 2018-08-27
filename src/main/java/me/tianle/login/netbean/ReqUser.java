@@ -1,22 +1,16 @@
-package me.tianle.login.bean;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+package me.tianle.login.netbean;
 
 import javax.validation.constraints.NotBlank;
 
-public class User {
+public class ReqUser {
+
     private String name;
     private String password;
     private String phonenum;
     private String email;
 
-    public User() {
+    public ReqUser() {
 
-    }
-
-    public User(String name, String password) {
-        this.name = name;
-        this.password = password;
     }
 
     @NotBlank(message = "用户名不能为空")
@@ -52,4 +46,5 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
     }
+
 }

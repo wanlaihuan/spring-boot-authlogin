@@ -18,7 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @RestController
-public class LoginRegController {
+public class WebRegLoginController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
     String result = "";

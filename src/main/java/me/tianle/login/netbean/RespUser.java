@@ -1,25 +1,17 @@
-package me.tianle.login.bean;
+package me.tianle.login.netbean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.validation.constraints.NotBlank;
-
-public class User {
+public class RespUser {
     private String name;
     private String password;
     private String phonenum;
     private String email;
 
-    public User() {
+    public RespUser() {
 
     }
 
-    public User(String name, String password) {
-        this.name = name;
-        this.password = password;
-    }
-
-    @NotBlank(message = "用户名不能为空")
     public String getName() {
         return name;
     }
@@ -28,7 +20,7 @@ public class User {
         this.name = name;
     }
 
-    @NotBlank(message = "密码不能为空")
+    @JsonIgnore // 用来过滤密码，使得返回不会包含密码信息
     public String getPassword() {
         return password;
     }
