@@ -1,16 +1,16 @@
 package me.tianle.login.controller;
 
-import me.tianle.login.bean.User;
+import me.tianle.login.netbean.ReqUser;
+import me.tianle.login.resp.RespCode;
+import me.tianle.login.resp.RespEntity;
+import me.tianle.login.resp.RespEntityJsonArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -18,31 +18,21 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @RestController
-public class WebRegLoginController {
+@RequestMapping("/system/oauth")
+public class AuthRegController {
+
     @Autowired
-    private JdbcTemplate jdbcTemplate;
-    String result = "";
+    private JdbcTemplate jdbcTemplate; // 数据库查询类
 
-    @RequestMapping("/")
-    public ModelAndView index() {
-        return new ModelAndView("index");
-    }
-
-    /**
-     * 用户注册
-     *
-     * @param user
-     * @return
-     */
     @RequestMapping(value = "/reg", method = RequestMethod.POST)
-    public String reg(@ModelAttribute User user) {
-        String name = user.getName();
-        String password = user.getPassword();
+    @ResponseBody
+    public RespEntity reg(@RequestBody @Valid ReqUser reqUser) {
 
-        if (StringUtils.isEmpty(name) || StringUtils.isEmpty(password)) {
-            return "账号密码不能为空！";
-        }
-        result = "";
+        String name = reqUser.getUser_name();
+        String password = reqUser.getPassword();
+
+        RespEntityJsonArray.clearResult();
+
         // TODO: 先查询是否存在
         StringBuilder sb = new StringBuilder("select * from userBaseInfo where user_name = \"");
         sb.append(name);
@@ -52,49 +42,48 @@ public class WebRegLoginController {
             public void processRow(ResultSet rs) throws SQLException {
                 String queryName = rs.getString("user_name");
                 if (name.equals(queryName)) {
-                    result = "对不起，该账号已被占用！";
+                    RespEntityJsonArray.setResult("reg_status", "1"); // -1: 其他异常 0：注册成功；1：用户名被占用;
                 }
             }
         });
-        if (!StringUtils.isEmpty(result)) {
-            return result;
+
+        if (RespEntityJsonArray.optResult().size() > 0) {
+            return new RespEntity(RespCode.SUCCESS, RespEntityJsonArray.optResult());
         }
+
         Date date = new Date();     //获取一个Date对象
         DateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");   //创建一个格式化日期对象
         String regTime = simpleDateFormat.format(date);   //格式化后的时间
         jdbcTemplate.update("INSERT INTO userBaseInfo VALUES(?, ?, ?, ?, ?,?,?,?,?,?,?,?)",
-                new Object[]{null, name, password, user.getPhonenum(), user.getEmail(), "", "", "", "", "", "", ""}); // 自增 ID ，所以第一个传 null
+                new Object[]{null, name, password, reqUser.getPhone_num(), reqUser.getEmail(), "", "", "", "", "", "", ""}); // 自增 ID ，所以第一个传 null
         jdbcTemplate.query(sql, new RowCallbackHandler() {
             public void processRow(ResultSet rs) throws SQLException {
                 String queryName = rs.getString("user_name");
                 if (!StringUtils.isEmpty(queryName)) {
-                    result = "注册成功！";
+                    RespEntityJsonArray.setResult("reg_status", "0"); // -1: 其他异常 0：注册成功；1：用户名被占用;
+                } else {
+                    // 其他异常
+                    RespEntityJsonArray.setResult("reg_status", "-1"); // -1: 其他异常 0：注册成功；1：用户名被占用;
                 }
             }
         });
 
-        if (!StringUtils.isEmpty(result)) {
-            return result;
-        }
-
-        result = "注册失败！";
-        return result;
+        return new RespEntity(RespCode.SUCCESS, RespEntityJsonArray.optResult());
     }
 
     /**
      * 用户登录
      *
-     * @param user
      * @return
      */
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public String login(@ModelAttribute User user) {
-        String name = user.getName();
-        String password = user.getPassword();
-        if (StringUtils.isEmpty(name) || StringUtils.isEmpty(password)) {
-            return "账号密码不能为空！";
-        }
-        result = "";
+    @ResponseBody
+    public RespEntity login(@RequestBody @Valid ReqUser reqUser) {
+        String name = reqUser.getUser_name();
+        String password = reqUser.getPassword();
+
+        RespEntityJsonArray.clearResult();
+
         jdbcTemplate.query("SELECT * FROM userBaseInfo WHERE user_name = ? and password = ?",
                 new Object[]{name, password},
                 new RowCallbackHandler() {
@@ -102,14 +91,14 @@ public class WebRegLoginController {
                         String queryName = rs.getString("user_name");
                         String queryPassword = rs.getString("password");
                         if (name.equals(queryName) && password.equals(queryPassword)) {
-                            result = "登录成功！" + queryName + ":" + queryPassword;
+                            RespEntityJsonArray.setResult("login_status", "0"); // -1：其他错误；0: 登录成功；1：用户名或密码错误
                         }
                     }
                 });
-        if (StringUtils.isEmpty(result)) {
-            result = "账号或密码错误！";
+        if (RespEntityJsonArray.optResult().size() == 0) { // 说明没查到
+            RespEntityJsonArray.setResult("login_status", "1"); // -1：其他错误；0: 登录成功；1：用户名或密码错误
         }
 
-        return result;
+        return new RespEntity(RespCode.SUCCESS, RespEntityJsonArray.optResult());
     }
 }

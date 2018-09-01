@@ -3,48 +3,37 @@ package me.tianle.login.netbean;
 import javax.validation.constraints.NotBlank;
 
 public class ReqUser {
-
-    private String name;
+    private String user_name;
     private String password;
-    private String phonenum;
+    private String phone_num;
     private String email;
 
-    public ReqUser() {
-
+    public void setUser_name(String user_name) {
+        this.user_name = user_name;
     }
-
-    @NotBlank(message = "用户名不能为空")
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @NotBlank(message = "密码不能为空")
-    public String getPassword() {
-        return password;
+    public String getUser_name() {
+        return user_name;
     }
 
     public void setPassword(String password) {
         this.password = password;
     }
-
-    public String getPhonenum() {
-        return phonenum;
+    @NotBlank(message = "密码不能为空")
+    public String getPassword() {
+        return password;
     }
 
-    public void setPhonenum(String phonenum) {
-        this.phonenum = phonenum;
+    public void setPhone_num(String phone_num) {
+        this.phone_num = phone_num;
     }
-
-    public String getEmail() {
-        return email;
+    public String getPhone_num() {
+        return phone_num;
     }
 
     public void setEmail(String email) {
         this.email = email;
     }
-
+    public String getEmail() {
+        return email;
+    }
 }

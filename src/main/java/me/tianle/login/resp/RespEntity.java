@@ -11,6 +11,11 @@ public class RespEntity {
         this.msg = respCode.getMsg();
     }
 
+    /**
+     *
+     * @param respCode
+     * @param results 如果是个 bean，响应返回 json 格式；如果是 map list 则返回的是json 数组格式；
+     */
     public RespEntity(RespCode respCode, Object results) {
         this(respCode);
         this.results = results;

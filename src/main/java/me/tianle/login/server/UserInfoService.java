@@ -5,10 +5,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.List;
 import java.util.Map;
 
-public class AuthLoginService {
+public class UserInfoService {
     private JdbcTemplate jdbcTemplate; // 数据库查询类
 
-    public AuthLoginService(JdbcTemplate jdbcTemplate) {
+    public UserInfoService(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
