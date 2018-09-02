@@ -27,7 +27,7 @@ public class UserInfoController {
      */
     @RequestMapping(value = "/baseInfo", method = {RequestMethod.GET, RequestMethod.POST})
     @ResponseBody
-    public RespEntity userinfo(@RequestBody @Valid ReqUser reqUser) {
+    public RespEntity baseInfo(@RequestBody @Valid ReqUser reqUser) {
         if(StringUtils.isEmpty(reqUser.getUser_name())) {
             return new RespEntity(RespCode.ERROR,null);
         }

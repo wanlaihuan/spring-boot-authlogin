@@ -3,7 +3,7 @@ package me.tianle.login.controller;
 import me.tianle.login.netbean.ReqUser;
 import me.tianle.login.resp.RespCode;
 import me.tianle.login.resp.RespEntity;
-import me.tianle.login.resp.RespEntityJsonArray;
+import me.tianle.login.resp.EntityJsonValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
@@ -31,8 +31,6 @@ public class AuthRegController {
         String name = reqUser.getUser_name();
         String password = reqUser.getPassword();
 
-        RespEntityJsonArray.clearResult();
-
         // TODO: 先查询是否存在
         StringBuilder sb = new StringBuilder("select * from userBaseInfo where user_name = \"");
         sb.append(name);
@@ -42,13 +40,13 @@ public class AuthRegController {
             public void processRow(ResultSet rs) throws SQLException {
                 String queryName = rs.getString("user_name");
                 if (name.equals(queryName)) {
-                    RespEntityJsonArray.setResult("reg_status", "1"); // -1: 其他异常 0：注册成功；1：用户名被占用;
+                    EntityJsonValue.with()
+                            .put("reg_status", "1"); // -1: 其他异常 0：注册成功；1：用户名被占用;
                 }
             }
         });
-
-        if (RespEntityJsonArray.optResult().size() > 0) {
-            return new RespEntity(RespCode.SUCCESS, RespEntityJsonArray.optResult());
+        if (EntityJsonValue.with().hasValues()) {
+            return new RespEntity(RespCode.SUCCESS, EntityJsonValue.with().toJsonArrayValue());
         }
 
         Date date = new Date();     //获取一个Date对象
@@ -60,15 +58,15 @@ public class AuthRegController {
             public void processRow(ResultSet rs) throws SQLException {
                 String queryName = rs.getString("user_name");
                 if (!StringUtils.isEmpty(queryName)) {
-                    RespEntityJsonArray.setResult("reg_status", "0"); // -1: 其他异常 0：注册成功；1：用户名被占用;
+                    EntityJsonValue.with().put("reg_status", "0"); // -1: 其他异常 0：注册成功；1：用户名被占用;
                 } else {
                     // 其他异常
-                    RespEntityJsonArray.setResult("reg_status", "-1"); // -1: 其他异常 0：注册成功；1：用户名被占用;
+                    EntityJsonValue.with().put("reg_status", "-1"); // -1: 其他异常 0：注册成功；1：用户名被占用;
                 }
             }
         });
 
-        return new RespEntity(RespCode.SUCCESS, RespEntityJsonArray.optResult());
+        return new RespEntity(RespCode.SUCCESS, EntityJsonValue.with().toJsonArrayValue());
     }
 
     /**
@@ -82,8 +80,6 @@ public class AuthRegController {
         String name = reqUser.getUser_name();
         String password = reqUser.getPassword();
 
-        RespEntityJsonArray.clearResult();
-
         jdbcTemplate.query("SELECT * FROM userBaseInfo WHERE user_name = ? and password = ?",
                 new Object[]{name, password},
                 new RowCallbackHandler() {
@@ -91,14 +87,16 @@ public class AuthRegController {
                         String queryName = rs.getString("user_name");
                         String queryPassword = rs.getString("password");
                         if (name.equals(queryName) && password.equals(queryPassword)) {
-                            RespEntityJsonArray.setResult("login_status", "0"); // -1：其他错误；0: 登录成功；1：用户名或密码错误
+                            EntityJsonValue.with()
+                                    .put("login_status", "0"); // -1：其他错误；0: 登录成功；1：用户名或密码错误
                         }
                     }
                 });
-        if (RespEntityJsonArray.optResult().size() == 0) { // 说明没查到
-            RespEntityJsonArray.setResult("login_status", "1"); // -1：其他错误；0: 登录成功；1：用户名或密码错误
+
+        if (!EntityJsonValue.with().hasValues()) {
+            EntityJsonValue.with().put("login_status", "1"); // -1：其他错误；0: 登录成功；1：用户名或密码错误
         }
 
-        return new RespEntity(RespCode.SUCCESS, RespEntityJsonArray.optResult());
+        return new RespEntity(RespCode.SUCCESS, EntityJsonValue.with().toJsonArrayValue());
     }
 }
