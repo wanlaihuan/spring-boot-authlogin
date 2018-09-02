@@ -53,7 +53,7 @@ public class AuthRegController {
         DateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");   //创建一个格式化日期对象
         String regTime = simpleDateFormat.format(date);   //格式化后的时间
         jdbcTemplate.update("INSERT INTO userBaseInfo VALUES(?, ?, ?, ?, ?,?,?,?,?,?,?,?)",
-                new Object[]{null, name, password, reqUser.getPhone_num(), reqUser.getEmail(), "", "", "", "", "", "", ""}); // 自增 ID ，所以第一个传 null
+                new Object[]{null, name, password, reqUser.getPhone_num(), reqUser.getEmail(), "", "", "", "", "", regTime, ""}); // 自增 ID ，所以第一个传 null
         jdbcTemplate.query(sql, new RowCallbackHandler() {
             public void processRow(ResultSet rs) throws SQLException {
                 String queryName = rs.getString("user_name");
